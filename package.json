@@ -1,0 +1,19 @@
+{
+  "name": "atmosreal",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AtmosReal - Planetary Weather Intelligence",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "author": "Israel Garcia Real",
+  "license": "MIT",
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "tailwindcss": "^4.3.5",
+    "vite": "^8.3.8"
+  }
+}
