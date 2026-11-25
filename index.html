@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>AtmosReal - Planetary Weather Intelligence</title>
+
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+
+  <body class="bg-slate-950 text-white">
+    <!-- Application header -->
+    <header class="text-center py-5">
+      <h1 class="text-4xl font-bold tracking-widest">
+        Atmos<span class="text-cyan-400">Real</span>
+      </h1>
+
+      <p class="mt-2 text-slate-400">Planetary Weather Intelligence</p>
+    </header>
+
+    <!-- Interactive 3D Earth -->
+    <main>
+      <div id="globe" class="w-full h-[70vh] overflow-hidden"></div>
+
+      <!-- Geographical coordinates -->
+      <p id="coordinates" class="text-center py-4 text-emerald-400">
+        Select a location to explore Earth
+      </p>
+    </main>
+
+    <script type="module" src="./globe.js"></script>
+  </body>
+</html>
