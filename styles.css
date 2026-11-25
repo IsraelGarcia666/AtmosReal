@@ -1,1 +1,119 @@
 @import "tailwindcss";
+
+/* Full-screen observation environment */
+#observation-scene {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  min-height: 480px;
+  overflow: hidden;
+  background: #000;
+}
+
+/* Interactive Earth canvas */
+#globe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Realistic lunar foreground */
+#lunar-surface {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 23%;
+
+  background-image: url("./assets/lunar-surface.png");
+  background-size: 100% 100%;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+/* Floating application header */
+#app-header {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  width: 100%;
+  padding: 0 16px;
+  pointer-events: none;
+
+  text-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
+}
+
+/* Floating navigation panel */
+#observation-controls {
+  position: absolute;
+  bottom: 24px;
+  left: 0;
+  width: 100%;
+  padding: 0 16px;
+  pointer-events: none;
+}
+
+/* Glass-style navigation buttons */
+.control-btn {
+  padding: 10px 18px;
+  border: 1px solid #38bdf8;
+  border-radius: 10px;
+
+  color: #e0f2fe;
+  background: rgba(5, 15, 30, 0.85);
+  backdrop-filter: blur(8px);
+
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.15);
+
+  cursor: pointer;
+  pointer-events: auto;
+  transition: 0.25s ease;
+}
+
+.control-btn:hover {
+  background: rgba(14, 116, 144, 0.8);
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.5);
+}
+
+/* Amber reset button */
+.reset-btn {
+  border-color: #ffb347;
+  color: #ffd28c;
+}
+
+.reset-btn:hover {
+  background: rgba(146, 64, 14, 0.8);
+  box-shadow: 0 0 18px rgba(255, 179, 71, 0.5);
+}
+
+/* Location information */
+#coordinates {
+  text-shadow:
+    0 2px 6px black,
+    0 0 10px black;
+}
+
+/* Mobile adaptation */
+@media (max-width: 640px) {
+  #lunar-surface {
+    background-size: cover;
+    height: 20%;
+  }
+
+  #app-header {
+    top: 16px;
+  }
+
+  #observation-controls {
+    bottom: 16px;
+  }
+
+  .control-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}

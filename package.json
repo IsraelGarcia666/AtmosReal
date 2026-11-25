@@ -18,6 +18,8 @@
   },
   "dependencies": {
     "globe.gl": "^2.46.2",
-    "jquery": "^4.1.0"
+    "jquery": "^4.1.0",
+    "solar-calculator": "^0.3.0",
+    "three": "^0.187.0"
   }
 }
