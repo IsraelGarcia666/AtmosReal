@@ -1,10 +1,12 @@
 import Globe from "globe.gl";
 import $ from "jquery";
-
 import { enableIllumination } from "./illumination.js";
+import { fetchWeather, displayWeather } from "./weather.js";
 
 // Select the HTML container for the 3D Earth.
 const container = document.getElementById("globe");
+// Track the active weather request.
+let activeWeatherRequest = null;
 
 // Calculate the initial camera distance based on screen proportions.
 function getHomeAltitude() {
@@ -69,6 +71,41 @@ earth.onGlobeClick(({ lat, lng }) => {
   $("#coordinates").text(
     `Latitude: ${lat.toFixed(2)}° | Longitude: ${lng.toFixed(2)}°`,
   );
+
+  // Cancel any previous unfinished weather request.
+  if (activeWeatherRequest) {
+    activeWeatherRequest.abort();
+  }
+
+  // Show a loading message.
+  $("#coordinates").text("Retrieving weather data...");
+  $("#weather-panel").addClass("hidden");
+  $("#view-weather-btn").addClass("hidden");
+
+  // Retrieve weather data for the selected location.
+  activeWeatherRequest = fetchWeather(lat, lng)
+    .done(function (data) {
+      console.log("AtmosReal weather data:", data);
+
+      displayWeather(data, lat, lng);
+
+      $("#coordinates").text(
+        `Latitude: ${lat.toFixed(2)}° | Longitude: ${lng.toFixed(2)}°`,
+      );
+
+      // Show the weather navigation button.
+      $("#view-weather-btn").removeClass("hidden");
+    })
+
+    .fail(function (xhr, status, error) {
+      if (status === "abort") {
+        return;
+      }
+
+      console.error("Weather request failed:", status, error);
+
+      $("#coordinates").text("Weather data unavailable. Please try again.");
+    });
 });
 
 // Adjust the globe and camera when the screen is resized.
@@ -123,6 +160,15 @@ $("#zoom-out-btn").on("click", function () {
 
 // Reset the original planetary viewpoint.
 $("#reset-btn").on("click", function () {
+  // Cancel pending weather requests.
+  if (activeWeatherRequest) {
+    activeWeatherRequest.abort();
+    activeWeatherRequest = null;
+  }
+
+  // Hide the weather dashboard.
+  $("#weather-panel").addClass("hidden");
+  $("#view-weather-btn").addClass("hidden");
   earth.pointsData([]);
   earth.ringsData([]);
 
@@ -167,3 +213,10 @@ enableIllumination(earth)
   .catch((error) => {
     console.error("Illumination could not load:", error);
   });
+
+// Navigate to the weather dashboard.
+$("#view-weather-btn").on("click", function () {
+  document
+    .getElementById("weather-panel")
+    .scrollIntoView({ behavior: "smooth" });
+});
