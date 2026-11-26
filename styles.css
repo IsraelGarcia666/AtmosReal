@@ -168,3 +168,9 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Enable interaction with the city search interface */
+#city-search {
+  position: relative;
+  pointer-events: auto;
+}

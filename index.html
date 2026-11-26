@@ -25,6 +25,37 @@
         </h1>
 
         <p class="mt-2 text-slate-300">Planetary Weather Intelligence</p>
+
+        <!-- Worldwide city search -->
+        <div id="city-search" class="max-w-md mx-auto mt-4">
+          <form id="search-form" class="flex gap-2">
+            <input
+              id="city-input"
+              type="search"
+              placeholder="Search a city..."
+              aria-label="City name"
+              autocomplete="off"
+              required
+              minlength="2"
+              class="w-full min-w-0 px-4 py-2 rounded-lg bg-slate-950/85 border border-sky-600 text-white outline-none focus:border-cyan-400"
+            />
+
+            <button type="submit" class="control-btn">Search</button>
+          </form>
+
+          <!-- Search feedback -->
+          <p
+            id="search-status"
+            class="text-sm text-slate-300 mt-2"
+            aria-live="polite"
+          ></p>
+
+          <!-- Geographical search results -->
+          <div
+            id="search-results"
+            class="hidden mt-2 rounded-lg border border-sky-700 bg-slate-950/95 text-left max-h-48 overflow-y-auto"
+          ></div>
+        </div>
       </header>
 
       <!-- Observation station controls -->
@@ -87,6 +118,11 @@
 
         <!-- Current temperature -->
         <p id="weather-temperature" class="text-5xl font-bold mt-6">-- °C</p>
+        <!-- Current weather condition -->
+        <p id="weather-condition" class="text-xl text-sky-300 mt-2">--</p>
+
+        <!-- Local daylight status -->
+        <p id="weather-daylight" class="text-sm text-slate-400 mt-1">--</p>
 
         <!-- Weather information cards -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
@@ -108,6 +144,48 @@
           <div class="bg-slate-900 rounded-xl p-4">
             <p class="text-emerald-400">Time zone</p>
             <p id="weather-timezone">--</p>
+          </div>
+
+          <!-- Feels-like temperature -->
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-orange-400">Feels like</p>
+            <p id="weather-feels-like">--</p>
+          </div>
+
+          <!-- Wind speed -->
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-teal-400">Wind speed</p>
+            <p id="weather-wind-speed">--</p>
+          </div>
+
+          <!-- Wind direction -->
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-indigo-400">Wind direction</p>
+            <p id="weather-wind-direction">--</p>
+          </div>
+
+          <!-- Cloud coverage -->
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-slate-300">Cloud coverage</p>
+            <p id="weather-cloud-cover">--</p>
+          </div>
+
+          <!-- Atmospheric pressure -->
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-pink-400">Surface pressure</p>
+            <p id="weather-pressure">--</p>
+          </div>
+
+          <!-- Sunrise -->
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-yellow-400">Sunrise</p>
+            <p id="weather-sunrise">--</p>
+          </div>
+
+          <!-- Sunset -->
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-orange-400">Sunset</p>
+            <p id="weather-sunset">--</p>
           </div>
         </div>
 
