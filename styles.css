@@ -151,3 +151,20 @@
     margin-top: 6px;
   }
 }
+
+/* Observation mode button */
+.mode-btn {
+  border-color: #a78bfa;
+  color: #ddd6fe;
+}
+
+.mode-btn:hover,
+.mode-btn[aria-pressed="true"] {
+  background: rgba(109, 40, 217, 0.75);
+  box-shadow: 0 0 18px rgba(167, 139, 250, 0.5);
+}
+
+.mode-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

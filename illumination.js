@@ -30,6 +30,7 @@ export async function enableIllumination(earth) {
       nightMap: { value: nightTexture },
       cloudMap: { value: cloudTexture },
       cloudOpacity: { value: cloudTexture ? 0.65 : 0.0 },
+      explorationMode: { value: 0.0 },
       sunDirection: { value: new Vector3() },
     },
 
@@ -55,6 +56,7 @@ export async function enableIllumination(earth) {
             uniform sampler2D nightMap;
             uniform sampler2D cloudMap;
             uniform float cloudOpacity;
+            uniform float explorationMode;
             uniform vec3 sunDirection;
 
             varying vec2 earthUV;
@@ -108,7 +110,8 @@ export async function enableIllumination(earth) {
                         cloud * cloudOpacity
                     );
                 }
-
+                // Switch to clear geographical exploration when enabled.
+                color = mix(color, day * 1.25, explorationMode);
                 gl_FragColor = vec4(color, 1.0);
 
                 #include <colorspace_fragment>
@@ -142,4 +145,8 @@ export async function enableIllumination(earth) {
 
   // Recalculate the Sun's position every minute.
   setInterval(updateSunPosition, 60000);
+  // Allow other modules to switch observation modes.
+  return function setExplorationMode(enabled) {
+    material.uniforms.explorationMode.value = enabled ? 1.0 : 0.0;
+  };
 }

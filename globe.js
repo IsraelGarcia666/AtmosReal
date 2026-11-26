@@ -145,7 +145,25 @@ $("#reset-btn").on("click", function () {
   $("#coordinates").text("Select a location to explore Earth");
 });
 
-// Enable real-time planetary illumination.
-enableIllumination(earth).catch((error) => {
-  console.error("Illumination could not load:", error);
-});
+// Enable illumination and configure observation modes.
+enableIllumination(earth)
+  .then((setExplorationMode) => {
+    let explorationEnabled = false;
+
+    // Enable the button once the shader is ready.
+    $("#mode-btn").prop("disabled", false);
+
+    // Switch between observation modes.
+    $("#mode-btn").on("click", function () {
+      explorationEnabled = !explorationEnabled;
+
+      setExplorationMode(explorationEnabled);
+
+      $(this).text(explorationEnabled ? "Real-time mode" : "Exploration mode");
+
+      $(this).attr("aria-pressed", explorationEnabled);
+    });
+  })
+  .catch((error) => {
+    console.error("Illumination could not load:", error);
+  });
