@@ -18,11 +18,18 @@ export async function enableIllumination(earth) {
   dayTexture.colorSpace = SRGBColorSpace;
   nightTexture.colorSpace = SRGBColorSpace;
 
+  // Load a transparent global cloud texture.
+  const cloudTexture = await loader
+    .loadAsync("https://unpkg.com/globe.gl@2.33.1/example/clouds/clouds.png")
+    .catch(() => null);
+
   // Custom material combining two Earth textures.
   const material = new ShaderMaterial({
     uniforms: {
       dayMap: { value: dayTexture },
       nightMap: { value: nightTexture },
+      cloudMap: { value: cloudTexture },
+      cloudOpacity: { value: cloudTexture ? 0.65 : 0.0 },
       sunDirection: { value: new Vector3() },
     },
 
@@ -46,6 +53,8 @@ export async function enableIllumination(earth) {
     fragmentShader: `
             uniform sampler2D dayMap;
             uniform sampler2D nightMap;
+            uniform sampler2D cloudMap;
+            uniform float cloudOpacity;
             uniform vec3 sunDirection;
 
             varying vec2 earthUV;
@@ -77,11 +86,31 @@ export async function enableIllumination(earth) {
                 vec3 realisticDay = day * lighting * 1.7;
 
                 // Combine night lights and shaded daytime texture.
-                vec3 color = mix(
+                                vec3 color = mix(
                     night, realisticDay, daylight
                 );
 
+                // Add clouds affected by sunlight.
+                if (cloudOpacity > 0.0) {
+
+                    float cloud = texture2D(
+                        cloudMap, earthUV
+                    ).a;
+
+                    float cloudLight =
+                        0.04 + 0.96 * daylight;
+
+                    vec3 cloudColor = vec3(cloudLight);
+
+                    color = mix(
+                        color,
+                        cloudColor,
+                        cloud * cloudOpacity
+                    );
+                }
+
                 gl_FragColor = vec4(color, 1.0);
+
                 #include <colorspace_fragment>
             }
         `,

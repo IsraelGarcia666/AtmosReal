@@ -6,6 +6,13 @@ import { enableIllumination } from "./illumination.js";
 // Select the HTML container for the 3D Earth.
 const container = document.getElementById("globe");
 
+// Calculate the initial camera distance based on screen proportions.
+function getHomeAltitude() {
+  const aspectRatio = container.clientHeight / container.clientWidth;
+
+  return Math.max(2.5, 2.6 * aspectRatio - 1);
+}
+
 // Initialize the interactive globe.
 const earth = new Globe(container)
   .globeImageUrl(
@@ -32,11 +39,13 @@ earth
   .ringPropagationSpeed(2)
   .ringRepeatPeriod(1000);
 
-// Set the initial camera position.
-earth.pointOfView({
-  lat: 20,
-  lng: 0,
-  altitude: 2.5,
+// Set the responsive camera position once Earth is ready.
+earth.onGlobeReady(() => {
+  earth.pointOfView({
+    lat: 20,
+    lng: 0,
+    altitude: getHomeAltitude(),
+  });
 });
 
 // Retrieve coordinates when the user clicks Earth.
@@ -62,10 +71,18 @@ earth.onGlobeClick(({ lat, lng }) => {
   );
 });
 
-// Adjust the globe when the browser is resized.
+// Adjust the globe and camera when the screen is resized.
 $(window).on("resize", function () {
   earth.width(container.clientWidth);
   earth.height(container.clientHeight);
+
+  const view = earth.pointOfView();
+
+  earth.pointOfView({
+    lat: view.lat,
+    lng: view.lng,
+    altitude: getHomeAltitude(),
+  });
 });
 
 // Pause or resume automatic rotation.
@@ -95,7 +112,10 @@ $("#zoom-out-btn").on("click", function () {
 
   earth.pointOfView(
     {
-      altitude: Math.min(5, view.altitude * 1.25),
+      altitude: Math.min(
+        Math.max(5, getHomeAltitude() * 1.5),
+        view.altitude * 1.25,
+      ),
     },
     500,
   );
@@ -110,7 +130,7 @@ $("#reset-btn").on("click", function () {
     {
       lat: 20,
       lng: 0,
-      altitude: 2.5,
+      altitude: getHomeAltitude(),
     },
     1000,
   );
