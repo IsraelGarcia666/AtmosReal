@@ -60,6 +60,46 @@ The final visual design may evolve during development.
 
 ## Development History
 
+### v0.3.0 – Weather Intelligence and Global City Search
+
+**Released: November 27, 2026**
+
+#### Added
+
+- Open-Meteo weather API integration using jQuery AJAX.
+- Worldwide city search using the Open-Meteo Geocoding API.
+- Dynamic search results with city, region and country information.
+- Animated planetary navigation to selected geographical locations.
+- Current weather dashboard with detailed atmospheric information.
+- Five-day weather forecast with dynamically generated cards.
+- Weather condition interpretation based on WMO weather codes.
+- Dynamic weather icons with daytime and nighttime support.
+- Local time, time zone, elevation, sunrise and sunset information.
+
+#### Improved
+
+- Reusable location selection function for globe interaction and city search.
+- Reset functionality to clear search results, weather information and geographical markers.
+- AJAX request management to prevent outdated weather and search responses.
+- Responsive weather dashboard using Tailwind CSS.
+- Code organization and documentation.
+
+#### Testing
+
+- Functional testing of planetary navigation, city search and weather retrieval.
+- Successful JavaScript syntax validation.
+- Successful Vite production build.
+- Successful production preview testing.
+
+#### Known limitations
+
+- Search interface may overlap Earth on smaller viewports.
+- Forecast card alignment requires further refinement.
+- Mobile camera distance requires further optimization.
+- Large JavaScript bundle generates a non-critical build warning.
+
+These limitations will be addressed in future versions.
+
 ### Version 0.2.0 – Interactive 3D Earth
 
 - Implemented an interactive 3D Earth using Globe.gl and Three.js.

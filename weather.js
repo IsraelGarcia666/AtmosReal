@@ -84,13 +84,15 @@ export function fetchWeather(lat, lng) {
 }
 
 // Display current weather information in the dashboard.
-export function displayWeather(data, lat, lng) {
+export function displayWeather(data, lat, lng, locationName = null) {
   const current = data.current;
   const units = data.current_units;
 
-  // Display the selected geographical coordinates.
+  // Display the city name when available.
+  const coordinates = `Latitude: ${lat.toFixed(2)}° | Longitude: ${lng.toFixed(2)}°`;
+
   $("#weather-location").text(
-    `Latitude: ${lat.toFixed(2)}° | Longitude: ${lng.toFixed(2)}°`,
+    locationName ? `${locationName} | ${coordinates}` : coordinates,
   );
 
   // Display current weather information.
@@ -98,8 +100,11 @@ export function displayWeather(data, lat, lng) {
     `${current.temperature_2m} ${units.temperature_2m}`,
   );
 
-  // Display the current weather condition.
-  $("#weather-condition").text(getWeatherCondition(current.weather_code));
+  // Display the current weather icon and condition.
+  $("#weather-condition").text(
+    `${getWeatherIcon(current.weather_code, current.is_day === 1)}
+    ${getWeatherCondition(current.weather_code)}`,
+  );
 
   // Display the local day or night status.
   $("#weather-daylight").text(
@@ -148,6 +153,124 @@ export function displayWeather(data, lat, lng) {
     "Data provider: Open-Meteo | Data received successfully",
   );
 
+  // Display the five-day weather forecast.
+  displayForecast(data);
   // Reveal the weather dashboard.
   $("#weather-panel").removeClass("hidden");
+}
+
+// Generate daily weather forecast cards.
+function displayForecast(data) {
+  const daily = data.daily;
+  const units = data.daily_units || {};
+
+  const container = $("#forecast-cards");
+
+  // Remove forecast cards from the previous location.
+  container.empty();
+
+  // Check whether forecast data is available.
+  if (!daily?.time?.length) {
+    container.text("Forecast data unavailable.");
+    return;
+  }
+
+  // Generate one card for each forecast day.
+  daily.time.forEach(function (date, index) {
+    const day = new Date(date + "T12:00:00Z").toLocaleDateString("en-GB", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      timeZone: "UTC",
+    });
+
+    const condition = getWeatherCondition(daily.weather_code[index]);
+
+    const maximum = daily.temperature_2m_max[index];
+    const minimum = daily.temperature_2m_min[index];
+
+    const precipitation = daily.precipitation_probability_max[index];
+
+    // Create the forecast card.
+    const card = $("<div>").addClass("bg-slate-900 rounded-xl p-4 text-center");
+
+    // Add forecast information.
+    card.append(
+      $("<p>")
+        .addClass("text-4xl mb-3")
+        .attr("aria-hidden", "true")
+        .text(getWeatherIcon(daily.weather_code[index])),
+
+      $("<p>").addClass("font-bold text-cyan-400 mb-3").text(day),
+
+      $("<p>").addClass("text-slate-300 mb-3").text(condition),
+
+      $("<p>")
+        .addClass("text-orange-400")
+        .text(`Max: ${maximum ?? "--"} ${units.temperature_2m_max ?? "°C"}`),
+
+      $("<p>")
+        .addClass("text-sky-400")
+        .text(`Min: ${minimum ?? "--"} ${units.temperature_2m_min ?? "°C"}`),
+
+      $("<p>")
+        .addClass("text-blue-300 text-sm mt-3")
+        .text(`Precipitation: ${precipitation ?? "--"}%`),
+    );
+
+    // Insert the card into the forecast container.
+    container.append(card);
+  });
+}
+
+// Select a weather icon according to the WMO weather code.
+function getWeatherIcon(code, isDay = true) {
+  switch (code) {
+    case 0:
+      return isDay ? "☀️" : "🌙";
+
+    case 1:
+    case 2:
+      return isDay ? "🌤️" : "☁️";
+
+    case 3:
+      return "☁️";
+
+    case 45:
+    case 48:
+      return "🌫️";
+
+    case 51:
+    case 53:
+    case 55:
+    case 56:
+    case 57:
+      return "🌦️";
+
+    case 61:
+    case 63:
+    case 65:
+    case 66:
+    case 67:
+    case 80:
+    case 81:
+    case 82:
+      return "🌧️";
+
+    case 71:
+    case 73:
+    case 75:
+    case 77:
+    case 85:
+    case 86:
+      return "🌨️";
+
+    case 95:
+    case 96:
+    case 99:
+      return "⛈️";
+
+    default:
+      return "🌡️";
+  }
 }

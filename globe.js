@@ -2,6 +2,7 @@ import Globe from "globe.gl";
 import $ from "jquery";
 import { enableIllumination } from "./illumination.js";
 import { fetchWeather, displayWeather } from "./weather.js";
+import { searchLocations } from "./geocoding.js";
 
 // Select the HTML container for the 3D Earth.
 const container = document.getElementById("globe");
@@ -50,9 +51,8 @@ earth.onGlobeReady(() => {
   });
 });
 
-// Retrieve coordinates when the user clicks Earth.
-// Retrieve coordinates and mark the selected location.
-earth.onGlobeClick(({ lat, lng }) => {
+// Select a location and retrieve its weather information.
+function selectLocation(lat, lng, locationName = null) {
   // Stop automatic rotation.
   earth.controls().autoRotate = false;
   $("#rotate-btn").text("Resume rotation");
@@ -87,7 +87,7 @@ earth.onGlobeClick(({ lat, lng }) => {
     .done(function (data) {
       console.log("AtmosReal weather data:", data);
 
-      displayWeather(data, lat, lng);
+      displayWeather(data, lat, lng, locationName);
 
       $("#coordinates").text(
         `Latitude: ${lat.toFixed(2)}° | Longitude: ${lng.toFixed(2)}°`,
@@ -106,6 +106,11 @@ earth.onGlobeClick(({ lat, lng }) => {
 
       $("#coordinates").text("Weather data unavailable. Please try again.");
     });
+}
+
+// Select a geographical location by clicking Earth.
+earth.onGlobeClick(({ lat, lng }) => {
+  selectLocation(lat, lng);
 });
 
 // Adjust the globe and camera when the screen is resized.
@@ -160,6 +165,17 @@ $("#zoom-out-btn").on("click", function () {
 
 // Reset the original planetary viewpoint.
 $("#reset-btn").on("click", function () {
+  // Cancel pending city search requests.
+  if (activeSearchRequest) {
+    activeSearchRequest.abort();
+    activeSearchRequest = null;
+  }
+
+  // Clear the city search interface.
+  $("#city-input").val("");
+  $("#search-status").text("");
+  $("#search-results").empty().addClass("hidden");
+
   // Cancel pending weather requests.
   if (activeWeatherRequest) {
     activeWeatherRequest.abort();
@@ -169,9 +185,12 @@ $("#reset-btn").on("click", function () {
   // Hide the weather dashboard.
   $("#weather-panel").addClass("hidden");
   $("#view-weather-btn").addClass("hidden");
+
+  // Remove geographical markers.
   earth.pointsData([]);
   earth.ringsData([]);
 
+  // Restore the original camera position.
   earth.pointOfView(
     {
       lat: 20,
@@ -181,6 +200,7 @@ $("#reset-btn").on("click", function () {
     1000,
   );
 
+  // Resume automatic planetary rotation.
   earth.controls().autoRotate = true;
 
   $("#rotate-btn").text("Pause rotation");
@@ -219,4 +239,95 @@ $("#view-weather-btn").on("click", function () {
   document
     .getElementById("weather-panel")
     .scrollIntoView({ behavior: "smooth" });
+});
+
+// Track the active city search request.
+let activeSearchRequest = null;
+
+// Handle city search submissions.
+$("#search-form").on("submit", function (event) {
+  // Prevent the browser from reloading the page.
+  event.preventDefault();
+
+  const query = $("#city-input").val().trim();
+
+  if (query.length < 2) {
+    $("#search-status").text("Enter at least two characters.");
+    return;
+  }
+
+  // Cancel any previous unfinished search.
+  if (activeSearchRequest) {
+    activeSearchRequest.abort();
+  }
+
+  $("#search-status").text("Searching locations...");
+  $("#search-results").empty().addClass("hidden");
+
+  // Retrieve matching geographical locations.
+  activeSearchRequest = searchLocations(query)
+    .done(function (data) {
+      const locations = data.results || [];
+
+      if (locations.length === 0) {
+        $("#search-status").text("No matching locations found.");
+        return;
+      }
+
+      $("#search-status").text("Select a location.");
+
+      // Create a button for each matching location.
+      locations.forEach(function (location) {
+        const label = [location.name, location.admin1, location.country]
+          .filter(Boolean)
+          .join(", ");
+
+        const button = $("<button>")
+          .attr("type", "button")
+          .addClass(
+            "block w-full text-left px-4 py-3 " +
+              "hover:bg-sky-900/60 border-b border-slate-800",
+          )
+          .text(label);
+
+        // Navigate to the selected city.
+        button.on("click", function () {
+          // Display the selected location in the search field.
+          $("#city-input").val(label);
+
+          // Hide the search results.
+          $("#search-results").empty().addClass("hidden");
+
+          $("#search-status").text("");
+
+          // Reuse our existing location selection function.
+          selectLocation(location.latitude, location.longitude, label);
+
+          // Smoothly rotate Earth toward the selected city.
+          earth.pointOfView(
+            {
+              lat: location.latitude,
+              lng: location.longitude,
+              altitude: 1.5,
+            },
+            1800,
+          );
+        });
+
+        $("#search-results").append(button);
+      });
+
+      // Reveal the search results.
+      $("#search-results").removeClass("hidden");
+    })
+
+    .fail(function (xhr, status, error) {
+      if (status === "abort") {
+        return;
+      }
+
+      console.error("City search failed:", status, error);
+
+      $("#search-status").text("Search unavailable. Please try again.");
+    });
 });
