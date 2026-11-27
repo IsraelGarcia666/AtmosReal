@@ -174,3 +174,510 @@
   position: relative;
   pointer-events: auto;
 }
+
+/* Cinematic introduction state */
+#observation-scene[data-stage="intro"] #city-search,
+#observation-scene[data-stage="intro"] #observation-controls {
+  display: none;
+}
+
+/* Start here button */
+#start-btn {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  padding: 12px 30px;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  background: rgba(8, 25, 40, 0.45);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(56, 189, 248, 0.6);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+#start-btn:hover {
+  background: rgba(14, 116, 144, 0.35);
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.3);
+}
+
+/* Hide the introduction button during exploration */
+#observation-scene[data-stage="explore"] #start-btn {
+  display: none;
+}
+
+/* ========================================
+   Cinematic glass interface
+   ======================================== */
+
+.glass-panel {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: clamp(200px, 20vw, 320px);
+  max-height: 65%;
+  overflow-y: auto;
+  z-index: 20;
+
+  padding: 22px;
+  color: #e2e8f0;
+
+  /* Transparent glass effect */
+  background: linear-gradient(
+    135deg,
+    rgba(15, 35, 55, 0.25),
+    rgba(2, 6, 23, 0.15)
+  );
+
+  backdrop-filter: blur(2px);
+
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 16px;
+
+  box-shadow:
+    0 0 25px rgba(56, 189, 248, 0.06),
+    inset 0 0 15px rgba(56, 189, 248, 0.03);
+}
+
+/* Panel positioning */
+#left-panel {
+  left: 3%;
+}
+
+#right-panel {
+  right: 3%;
+}
+
+/* Hide panels during the cinematic introduction */
+#observation-scene[data-stage="intro"] .glass-panel {
+  display: none;
+}
+
+/* Panel typography */
+.panel-title {
+  color: #67e8f9;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.panel-description {
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.guidance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-size: 0.9rem;
+}
+
+.guidance-item {
+  margin-bottom: 20px;
+}
+
+.guidance-item:last-child {
+  margin-bottom: 0;
+}
+
+.guidance-item h3 {
+  color: #7dd3fc;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.guidance-item p {
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+/* Temporary protection for smaller screens */
+@media (max-width: 1023px), (max-height: 500px) {
+  .glass-panel {
+    display: none;
+  }
+}
+
+/* Desktop city search positioning */
+@media (min-width: 1024px) and (min-height: 650px) {
+  #app-header {
+    z-index: 25;
+  }
+
+  #city-search {
+    position: absolute;
+    top: 100%;
+    left: 3%;
+    width: clamp(200px, 20vw, 320px);
+    max-width: none;
+    margin: 16px 0 0;
+  }
+
+  #search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 30;
+  }
+}
+
+/* Refined desktop glass panel positioning */
+@media (min-width: 1024px) and (min-height: 650px) {
+  .glass-panel {
+    top: 190px;
+    transform: none;
+    max-height: calc(100% - 220px);
+  }
+}
+
+/* Cybernetic panel scrollbar */
+.glass-panel {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.35) transparent;
+}
+
+/* Refined city search results */
+#search-results {
+  background: #070e1c;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.35) transparent;
+
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  border-radius: 12px;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+}
+
+#search-status {
+  text-align: left;
+}
+
+/* Compact weather panel layout */
+#left-weather .panel-title,
+#right-weather .panel-title {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+}
+
+#forecast-summary > p:last-child {
+  margin-top: 10px;
+}
+
+/* Preserve the existing desktop planetary layout */
+#planetary-stage {
+  display: contents;
+}
+
+/* ========================================
+   Responsive mobile glass interface
+   ======================================== */
+
+@media (max-width: 1023px), (max-height: 649px) {
+  /* Allow the page to extend below Earth. */
+  #observation-scene {
+    height: auto;
+    min-height: 100svh;
+    overflow: visible;
+    background: #020617;
+  }
+
+  /* Maintain an independent planetary viewport. */
+  #planetary-stage {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100svh;
+    min-height: 480px;
+    overflow: hidden;
+  }
+
+  /* Stack the glass panels below Earth. */
+  #observation-scene[data-stage="explore"] .glass-panel {
+    display: block;
+    position: relative;
+    top: auto;
+    transform: none;
+
+    width: calc(100% - 32px);
+    max-width: 600px;
+    max-height: none;
+
+    margin: 16px auto;
+    padding: 20px;
+
+    overflow: visible;
+  }
+
+  /* Remove desktop horizontal positioning. */
+  #left-panel {
+    left: auto;
+  }
+
+  #right-panel {
+    right: auto;
+  }
+
+  /* Keep search results above other controls. */
+  #app-header {
+    z-index: 25;
+  }
+}
+
+/* Compact landscape planetary viewport */
+@media (orientation: landscape) and (max-height: 500px) {
+  #planetary-stage {
+    min-height: 0;
+  }
+}
+
+/* Integrated weather interface for tall portrait screens */
+@media (orientation: portrait) and (min-width: 390px) and (max-width: 1023px) and (min-height: 850px) {
+  #observation-scene[data-stage="explore"]
+    #left-panel:has(#left-weather:not(.hidden)),
+  #observation-scene[data-stage="explore"]
+    #right-panel:has(#right-weather:not(.hidden)) {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+
+    width: auto;
+    max-width: none;
+
+    margin: 0;
+    padding: 10px 12px;
+
+    transform: none;
+  }
+
+  /* Current weather above Earth */
+  #left-panel:has(#left-weather:not(.hidden)) {
+    top: 150px;
+    bottom: auto;
+  }
+
+  /* Five-day forecast below Earth */
+  #right-panel:has(#right-weather:not(.hidden)) {
+    top: auto;
+    bottom: 210px;
+  }
+
+  /* Compact panel headings */
+  #left-weather .panel-title,
+  #right-weather .panel-title {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+  }
+}
+
+/* Compact portrait weather summaries */
+@media (orientation: portrait) and (min-width: 390px) and (max-width: 1023px) and (min-height: 850px) {
+  #current-weather-summary > p {
+    margin-bottom: 4px;
+    font-size: 0.75rem;
+  }
+
+  #current-weather-summary > div {
+    margin-bottom: 4px;
+  }
+
+  /* Keep additional measurements in the detailed dashboard */
+  #current-weather-summary > div:nth-child(n + 4) {
+    display: none;
+  }
+
+  #forecast-summary {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  #forecast-summary > div {
+    flex-direction: column;
+    text-align: center;
+    gap: 2px;
+    padding: 4px 0;
+    border-bottom: none;
+  }
+
+  #forecast-summary > div > span {
+    font-size: 1.4rem;
+  }
+
+  #forecast-summary > div p {
+    font-size: 0.7rem;
+  }
+
+  /* Hide lengthy condition descriptions in the compact view */
+  #forecast-summary > div > div:nth-child(2) > p:nth-child(2) {
+    display: none;
+  }
+
+  #forecast-summary > div > div:last-child {
+    text-align: center;
+  }
+
+  #forecast-summary > p:last-child {
+    grid-column: 1 / -1;
+    font-size: 0.6rem;
+    margin-top: 2px;
+  }
+}
+/* Shared AtmosReal starfield background */
+#weather-panel,
+#observation-scene {
+  background-color: #020617;
+
+  background-image:
+    linear-gradient(rgba(2, 6, 23, 0.25), rgba(2, 6, 23, 0.25)),
+    url("https://cdn.jsdelivr.net/npm/three-globe/example/img/night-sky.png");
+
+  background-size: cover;
+  background-position: center;
+}
+
+/* Transparent detailed weather cards */
+#weather-panel .bg-slate-900 {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 35, 55, 0.25),
+    rgba(2, 6, 23, 0.15)
+  );
+
+  backdrop-filter: blur(2px);
+
+  border: 1px solid rgba(56, 189, 248, 0.25);
+
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.05);
+
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+/* Subtle interactive glow */
+#weather-panel .bg-slate-900:hover {
+  border-color: rgba(56, 189, 248, 0.6);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.12);
+}
+
+/* Integrated mobile landscape interface */
+@media (orientation: landscape) and (min-width: 740px) and (max-width: 1023px) and (min-height: 360px) and (max-height: 649px) {
+  /* Position the glass panels beside Earth. */
+  #observation-scene[data-stage="explore"] .glass-panel {
+    position: absolute;
+    top: 100px;
+    bottom: auto;
+
+    width: 26%;
+    max-width: none;
+    max-height: calc(100% - 112px);
+
+    margin: 0;
+    padding: 10px;
+
+    transform: none;
+    overflow-y: auto;
+  }
+
+  #observation-scene[data-stage="explore"] #left-panel {
+    left: 12px;
+    right: auto;
+  }
+
+  #observation-scene[data-stage="explore"] #right-panel {
+    right: 12px;
+    left: auto;
+  }
+
+  /* Relocate the city search to the left. */
+  #city-search {
+    position: absolute;
+    top: 100%;
+    left: 12px;
+    width: 26%;
+    margin: 4px 0 0;
+  }
+
+  #search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 30;
+  }
+
+  #city-search input,
+  #city-search button {
+    font-size: 0.75rem;
+    padding: 6px 8px;
+  }
+
+  /* Compact panel headings. */
+  .glass-panel .panel-title {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    padding-bottom: 5px;
+  }
+
+  /* Compact navigation area. */
+  #observation-controls {
+    left: 50%;
+    right: auto;
+    width: 44%;
+    transform: translateX(-50%);
+  }
+}
+
+/* Compact landscape weather content */
+@media (orientation: landscape) and (min-width: 740px) and (max-width: 1023px) and (min-height: 360px) and (max-height: 649px) {
+  #current-weather-summary > p {
+    font-size: 0.7rem;
+    margin-bottom: 6px;
+  }
+
+  #current-weather-summary .text-4xl {
+    font-size: 1.6rem;
+  }
+
+  #current-weather-summary .text-3xl {
+    font-size: 1.4rem;
+  }
+
+  #current-weather-summary > div {
+    font-size: 0.7rem;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    margin-bottom: 2px;
+  }
+
+  #forecast-summary > div {
+    gap: 6px;
+    padding: 2px 0;
+  }
+
+  #forecast-summary > div > span {
+    font-size: 1.2rem;
+  }
+
+  #forecast-summary p {
+    font-size: 0.65rem;
+    line-height: 1.3;
+  }
+
+  #forecast-summary > p:last-child {
+    margin-top: 3px;
+    font-size: 0.6rem;
+  }
+}

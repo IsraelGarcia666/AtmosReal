@@ -155,7 +155,25 @@ export function displayWeather(data, lat, lng, locationName = null) {
 
   // Display the five-day weather forecast.
   displayForecast(data);
-  // Reveal the weather dashboard.
+
+  // Populate the current weather glass panel.
+  displayWeatherSummary(data, lat, lng, locationName);
+
+  // Replace exploration guidance with current weather.
+  $("#left-guidance").addClass("hidden");
+  $("#left-weather").removeClass("hidden");
+
+  // Populate the five-day forecast glass panel.
+  displayForecastSummary(data);
+
+  // Replace observation guidance with the forecast.
+  $("#right-guidance").addClass("hidden");
+  $("#right-weather").removeClass("hidden");
+
+  // Reset panel scroll positions for each selected location.
+  $("#left-panel, #right-panel").scrollTop(0);
+
+  // Reveal the detailed weather dashboard.
   $("#weather-panel").removeClass("hidden");
 }
 
@@ -273,4 +291,156 @@ function getWeatherIcon(code, isDay = true) {
     default:
       return "🌡️";
   }
+}
+
+// Generate a compact current weather summary.
+function displayWeatherSummary(data, lat, lng, locationName) {
+  const current = data.current;
+  const units = data.current_units;
+
+  const container = $("#current-weather-summary");
+
+  // Remove information from the previous location.
+  container.empty();
+
+  const location = locationName || `${lat.toFixed(2)}°, ${lng.toFixed(2)}°`;
+
+  // Display the location, temperature and weather condition.
+  container.append(
+    $("<p>").addClass("text-slate-300 text-sm mb-3").text(location),
+
+    // Combine the weather icon and temperature.
+    $("<div>")
+      .addClass("flex items-center gap-3 mb-2")
+      .append(
+        $("<span>")
+          .addClass("text-4xl")
+          .attr("aria-hidden", "true")
+          .text(getWeatherIcon(current.weather_code, current.is_day === 1)),
+
+        $("<span>")
+          .addClass("text-3xl font-bold text-white")
+          .text(`${current.temperature_2m} ${units.temperature_2m}`),
+      ),
+
+    // Combine weather condition and daylight information.
+    $("<div>")
+      .addClass("flex items-center justify-between flex-wrap gap-2 mb-3")
+      .append(
+        $("<span>")
+          .addClass("text-cyan-300")
+          .text(getWeatherCondition(current.weather_code)),
+
+        $("<span>")
+          .addClass("text-slate-400 text-xs")
+          .text(current.is_day === 1 ? "☀️ Daytime" : "🌙 Nighttime"),
+      ),
+  );
+
+  // Prepare additional weather measurements.
+  const measurements = [
+    [
+      "Feels like",
+      `${current.apparent_temperature} ${units.apparent_temperature}`,
+    ],
+    ["Humidity", `${current.relative_humidity_2m}%`],
+    ["Wind speed", `${current.wind_speed_10m} ${units.wind_speed_10m}`],
+    ["Cloud coverage", `${current.cloud_cover}%`],
+    ["Local time", current.time.split("T")[1]],
+  ];
+
+  // Dynamically generate measurement rows.
+  measurements.forEach(function ([label, value]) {
+    const row = $("<div>").addClass(
+      "flex justify-between gap-3 py-2 " + "border-t border-sky-900/40 text-sm",
+    );
+
+    row.append(
+      $("<span>").addClass("text-slate-400").text(label),
+
+      $("<span>").addClass("text-white font-medium").text(value),
+    );
+
+    container.append(row);
+  });
+}
+
+// Generate a compact five-day forecast.
+function displayForecastSummary(data) {
+  const daily = data.daily;
+  const container = $("#forecast-summary");
+
+  // Remove forecast information from the previous location.
+  container.empty();
+
+  // Check whether forecast data is available.
+  if (!daily?.time?.length) {
+    container.text("Forecast data unavailable.");
+    return;
+  }
+
+  daily.time.forEach(function (date, index) {
+    // Format the local forecast date.
+    const day = new Date(date + "T12:00:00Z").toLocaleDateString("en-GB", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      timeZone: "UTC",
+    });
+
+    const code = daily.weather_code[index];
+    const maximum = daily.temperature_2m_max[index];
+    const minimum = daily.temperature_2m_min[index];
+    const precipitation = daily.precipitation_probability_max[index];
+
+    // Create the forecast row.
+    const row = $("<div>").addClass(
+      "flex items-center gap-3 py-1.5 " + "border-b border-sky-900/40",
+    );
+
+    // Weather icon.
+    const icon = $("<span>")
+      .addClass("text-3xl")
+      .attr("aria-hidden", "true")
+      .text(getWeatherIcon(code));
+
+    // Date and weather information.
+    const details = $("<div>").addClass("flex-1 min-w-0");
+
+    details.append(
+      $("<p>").addClass("text-white font-medium text-sm").text(day),
+
+      $("<p>")
+        .addClass("text-slate-400 text-xs")
+        .text(getWeatherCondition(code)),
+
+      $("<p>")
+        .addClass("text-sky-300 text-xs mt-1")
+        .text(`💧 ${precipitation ?? "--"}%`),
+    );
+
+    // Maximum and minimum temperatures.
+    const temperatures = $("<div>").addClass("text-right whitespace-nowrap");
+
+    temperatures.append(
+      $("<p>")
+        .addClass("text-orange-400 font-medium")
+        .text(`${maximum ?? "--"}°`),
+
+      $("<p>")
+        .addClass("text-sky-400 text-sm")
+        .text(`${minimum ?? "--"}°`),
+    );
+
+    // Assemble the forecast row.
+    row.append(icon, details, temperatures);
+
+    container.append(row);
+  });
+
+  container.append(
+    $("<p>")
+      .addClass("text-xs text-slate-400 mt-4")
+      .text("Data provider: Open-Meteo"),
+  );
 }
