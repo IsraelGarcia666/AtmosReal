@@ -11,6 +11,15 @@ let activeWeatherRequest = null;
 
 // Calculate the initial camera distance based on screen proportions.
 function getHomeAltitude() {
+  // Use a wider planetary view on compact landscape screens.
+  if (
+    window.matchMedia(
+      "(orientation: landscape) and (min-width: 650px) and (max-width: 1023px) and (max-height: 449px)",
+    ).matches
+  ) {
+    return 3.8;
+  }
+
   const aspectRatio = container.clientHeight / container.clientWidth;
 
   return Math.max(2.5, 2.6 * aspectRatio - 1);
