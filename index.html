@@ -5,104 +5,169 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>AtmosReal - Planetary Weather Intelligence</title>
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
 
     <link rel="stylesheet" href="./styles.css" />
   </head>
 
   <body class="bg-slate-950 text-white">
     <!-- Full-screen lunar observation scene -->
-    <main id="observation-scene">
-      <!-- Interactive 3D Earth -->
-      <div id="globe"></div>
+    <main id="observation-scene" data-stage="intro">
+      <!-- Interactive planetary viewport -->
+      <div id="planetary-stage">
+        <!-- Interactive 3D Earth -->
+        <div id="globe"></div>
 
-      <!-- Decorative lunar foreground -->
-      <div id="lunar-surface" aria-hidden="true"></div>
+        <!-- Decorative lunar foreground -->
+        <div id="lunar-surface" aria-hidden="true"></div>
 
-      <!-- Application header -->
-      <header id="app-header" class="text-center">
-        <h1 class="text-4xl md:text-5xl font-bold tracking-widest">
-          Atmos<span class="text-cyan-400">Real</span>
-        </h1>
+        <!-- Application header -->
+        <header id="app-header" class="text-center">
+          <h1 class="text-4xl md:text-5xl font-bold tracking-widest">
+            Atmos<span class="text-cyan-400">Real</span>
+          </h1>
 
-        <p class="mt-2 text-slate-300">Planetary Weather Intelligence</p>
+          <p class="mt-2 text-slate-300">Planetary Weather Intelligence</p>
 
-        <!-- Worldwide city search -->
-        <div id="city-search" class="max-w-md mx-auto mt-4">
-          <form id="search-form" class="flex gap-2">
-            <input
-              id="city-input"
-              type="search"
-              placeholder="Search a city..."
-              aria-label="City name"
-              autocomplete="off"
-              required
-              minlength="2"
-              class="w-full min-w-0 px-4 py-2 rounded-lg bg-slate-950/85 border border-sky-600 text-white outline-none focus:border-cyan-400"
-            />
+          <!-- Worldwide city search -->
+          <div id="city-search" class="max-w-md mx-auto mt-4">
+            <form id="search-form" class="flex gap-2">
+              <input
+                id="city-input"
+                type="search"
+                placeholder="Search a city..."
+                aria-label="City name"
+                autocomplete="off"
+                required
+                minlength="2"
+                class="w-full min-w-0 px-4 py-2 rounded-lg bg-slate-950/85 border border-sky-600 text-white outline-none focus:border-cyan-400"
+              />
 
-            <button type="submit" class="control-btn">Search</button>
-          </form>
+              <button type="submit" class="control-btn">Search</button>
+            </form>
 
-          <!-- Search feedback -->
-          <p
-            id="search-status"
-            class="text-sm text-slate-300 mt-2"
-            aria-live="polite"
-          ></p>
+            <!-- Search feedback -->
+            <p
+              id="search-status"
+              class="text-sm text-slate-300 mt-2"
+              aria-live="polite"
+            ></p>
 
-          <!-- Geographical search results -->
-          <div
-            id="search-results"
-            class="hidden mt-2 rounded-lg border border-sky-700 bg-slate-950/95 text-left max-h-48 overflow-y-auto"
-          ></div>
-        </div>
-      </header>
+            <!-- Geographical search results -->
+            <div
+              id="search-results"
+              class="hidden mt-2 rounded-lg border border-sky-700 bg-slate-950/95 text-left max-h-48 overflow-y-auto"
+            ></div>
+          </div>
+        </header>
 
-      <!-- Observation station controls -->
-      <div id="observation-controls">
-        <nav class="flex flex-wrap justify-center gap-3">
-          <button id="rotate-btn" type="button" class="control-btn">
-            Pause rotation
-          </button>
+        <!-- Cinematic introduction button -->
+        <button id="start-btn" type="button" class="control-btn">
+          Start here →
+        </button>
 
-          <button id="zoom-in-btn" type="button" class="control-btn">
-            + Zoom
-          </button>
+        <!-- Observation station controls -->
+        <div id="observation-controls">
+          <nav class="flex flex-wrap justify-center gap-3">
+            <button id="rotate-btn" type="button" class="control-btn">
+              Pause rotation
+            </button>
 
-          <button id="zoom-out-btn" type="button" class="control-btn">
-            − Zoom
-          </button>
+            <button id="zoom-in-btn" type="button" class="control-btn">
+              + Zoom
+            </button>
 
-          <button id="reset-btn" type="button" class="control-btn reset-btn">
-            Reset
-          </button>
-          <!-- Switch between planetary observation modes -->
-          <button
-            id="mode-btn"
-            type="button"
-            class="control-btn mode-btn"
-            aria-pressed="false"
-            disabled
-          >
-            Exploration mode
-          </button>
-        </nav>
+            <button id="zoom-out-btn" type="button" class="control-btn">
+              − Zoom
+            </button>
 
-        <p id="coordinates" class="text-center mt-4 text-emerald-400">
-          Select a location to explore Earth
-        </p>
+            <button id="reset-btn" type="button" class="control-btn reset-btn">
+              Reset
+            </button>
+            <!-- Switch between planetary observation modes -->
+            <button
+              id="mode-btn"
+              type="button"
+              class="control-btn mode-btn"
+              aria-pressed="false"
+              disabled
+            >
+              Exploration mode
+            </button>
+          </nav>
 
-        <!-- Navigate to the weather dashboard -->
-        <div class="text-center mt-2">
-          <button
-            id="view-weather-btn"
-            type="button"
-            class="control-btn hidden border-emerald-400 text-emerald-400"
-          >
-            View Weather ↓
-          </button>
+          <p id="coordinates" class="text-center mt-4 text-emerald-400">
+            Select a location to explore Earth
+          </p>
+
+          <!-- Navigate to the weather dashboard -->
+          <div class="text-center mt-2">
+            <button
+              id="view-weather-btn"
+              type="button"
+              class="control-btn hidden border-emerald-400 text-emerald-400"
+            >
+              View Weather ↓
+            </button>
+          </div>
         </div>
       </div>
+
+      <!-- Left glass panel -->
+      <aside id="left-panel" class="glass-panel">
+        <!-- Exploration guidance -->
+        <div id="left-guidance">
+          <h2 class="panel-title">Explore Earth</h2>
+
+          <p class="panel-description">
+            Discover weather conditions anywhere on our planet.
+          </p>
+
+          <ul class="guidance-list">
+            <li>🌍 Drag Earth to rotate</li>
+            <li>🔍 Zoom in or out</li>
+            <li>📍 Select any geographical location</li>
+            <li>🔎 Search for a city</li>
+          </ul>
+        </div>
+
+        <!-- Current weather information -->
+        <div id="left-weather" class="hidden">
+          <h2 class="panel-title">Current Weather</h2>
+
+          <div id="current-weather-summary"></div>
+        </div>
+      </aside>
+
+      <!-- Right glass panel -->
+      <aside id="right-panel" class="glass-panel">
+        <!-- Observation guidance -->
+        <div id="right-guidance">
+          <h2 class="panel-title">Observation Modes</h2>
+
+          <div class="guidance-item">
+            <h3>☀️ Real-time mode</h3>
+
+            <p>
+              Observe Earth's current day and night illumination with a static
+              cloud layer.
+            </p>
+          </div>
+
+          <div class="guidance-item">
+            <h3>🌍 Exploration mode</h3>
+
+            <p>Explore a fully illuminated planet without the cloud layer.</p>
+          </div>
+        </div>
+
+        <!-- Daily weather forecast -->
+        <div id="right-weather" class="hidden">
+          <h2 class="panel-title">Five-Day Forecast</h2>
+
+          <div id="forecast-summary"></div>
+        </div>
+      </aside>
     </main>
     <!-- Weather information dashboard -->
     <section

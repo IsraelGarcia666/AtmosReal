@@ -60,6 +60,23 @@ The final visual design may evolve during development.
 
 ## Development History
 
+### v0.4.0 – Cinematic Experience (2026-11-28)
+
+- Introduced a cinematic lunar observation scene with an
+  interactive Start here button.
+- Implemented transparent glass panels for exploration guidance,
+  current weather and five-day forecasts.
+- Developed adaptive desktop, mobile portrait and landscape layouts.
+- Extended the starfield background to the detailed weather dashboard.
+- Improved touchscreen scrolling and two-finger pinch zoom.
+- Optimized planetary camera distance for compact landscape screens.
+- Implemented responsive weather dashboard navigation.
+- Refactored and consolidated CSS styles and media queries.
+- Deployed AtmosReal through GitHub Pages under the developer's
+  personal domain.
+- Tested responsive behavior using Chrome DevTools and a physical
+  Android smartphone.
+
 ### v0.3.0 – Weather Intelligence and Global City Search
 
 **Released: November 27, 2026**

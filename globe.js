@@ -11,6 +11,15 @@ let activeWeatherRequest = null;
 
 // Calculate the initial camera distance based on screen proportions.
 function getHomeAltitude() {
+  // Use a wider planetary view on compact landscape screens.
+  if (
+    window.matchMedia(
+      "(orientation: landscape) and (min-width: 650px) and (max-width: 1023px) and (max-height: 449px)",
+    ).matches
+  ) {
+    return 3.8;
+  }
+
   const aspectRatio = container.clientHeight / container.clientWidth;
 
   return Math.max(2.5, 2.6 * aspectRatio - 1);
@@ -110,6 +119,11 @@ function selectLocation(lat, lng, locationName = null) {
 
 // Select a geographical location by clicking Earth.
 earth.onGlobeClick(({ lat, lng }) => {
+  // Prevent weather selection during the introduction.
+  if ($("#observation-scene").attr("data-stage") === "intro") {
+    return;
+  }
+
   selectLocation(lat, lng);
 });
 
@@ -182,6 +196,16 @@ $("#reset-btn").on("click", function () {
     activeWeatherRequest = null;
   }
 
+  // Restore the original guidance panels.
+  $("#left-weather, #right-weather").addClass("hidden");
+  $("#left-guidance, #right-guidance").removeClass("hidden");
+
+  // Clear previous weather summaries.
+  $("#current-weather-summary, #forecast-summary").empty();
+
+  // Restore the original panel scroll positions.
+  $("#left-panel, #right-panel").scrollTop(0);
+
   // Hide the weather dashboard.
   $("#weather-panel").addClass("hidden");
   $("#view-weather-btn").addClass("hidden");
@@ -205,9 +229,16 @@ $("#reset-btn").on("click", function () {
 
   $("#rotate-btn").text("Pause rotation");
 
+  // Stop interface animations and remove inline display styles.
+  $("#city-search, #observation-controls").stop(true, true).css("display", "");
+
+  // Restore the cinematic introduction state.
+  $("#observation-scene").attr("data-stage", "intro");
+
   // Restore the lunar observation view.
   $("#lunar-surface").css("opacity", 1);
 
+  // Restore the default instructions.
   $("#coordinates").text("Select a location to explore Earth");
 });
 
@@ -234,11 +265,20 @@ enableIllumination(earth)
     console.error("Illumination could not load:", error);
   });
 
-// Navigate to the weather dashboard.
+// Navigate according to the active responsive layout.
 $("#view-weather-btn").on("click", function () {
-  document
-    .getElementById("weather-panel")
-    .scrollIntoView({ behavior: "smooth" });
+  const panelPosition = getComputedStyle(
+    document.getElementById("left-panel"),
+  ).position;
+
+  // Integrated layouts use absolute positioning.
+  // Stacked layouts use relative positioning.
+  const target = panelPosition === "absolute" ? "weather-panel" : "left-panel";
+
+  document.getElementById(target).scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
 });
 
 // Track the active city search request.
@@ -282,18 +322,33 @@ $("#search-form").on("submit", function (event) {
           .filter(Boolean)
           .join(", ");
 
+        // Identify locations with identical display names.
+        const duplicateName =
+          locations.filter(function (item) {
+            return (
+              [item.name, item.admin1, item.country]
+                .filter(Boolean)
+                .join(", ") === label
+            );
+          }).length > 1;
+
+        // Include coordinates when names are identical.
+        const resultLabel = duplicateName
+          ? `${label} (${location.latitude.toFixed(4)}°, ${location.longitude.toFixed(4)}°)`
+          : label;
+
         const button = $("<button>")
           .attr("type", "button")
           .addClass(
             "block w-full text-left px-4 py-3 " +
               "hover:bg-sky-900/60 border-b border-slate-800",
           )
-          .text(label);
+          .text(resultLabel);
 
         // Navigate to the selected city.
         button.on("click", function () {
           // Display the selected location in the search field.
-          $("#city-input").val(label);
+          $("#city-input").val(location.name);
 
           // Hide the search results.
           $("#search-results").empty().addClass("hidden");
@@ -308,7 +363,7 @@ $("#search-form").on("submit", function (event) {
             {
               lat: location.latitude,
               lng: location.longitude,
-              altitude: 1.5,
+              altitude: getHomeAltitude(),
             },
             1800,
           );
@@ -330,4 +385,17 @@ $("#search-form").on("submit", function (event) {
 
       $("#search-status").text("Search unavailable. Please try again.");
     });
+});
+
+// Transition from cinematic introduction to exploration.
+$("#start-btn").on("click", function () {
+  // Activate exploration mode in the interface.
+  $("#observation-scene").attr("data-stage", "explore");
+
+  // Gradually hide the lunar landscape.
+  $("#lunar-surface").css("opacity", 0);
+
+  // Reveal the exploration interface with a fade effect.
+  $("#city-search").hide().fadeIn(800);
+  $("#observation-controls").hide().fadeIn(800);
 });

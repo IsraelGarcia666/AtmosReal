@@ -1,16 +1,44 @@
 @import "tailwindcss";
 
-/* Full-screen observation environment */
+/* 01 — Shared visual tokens and starfield */
+:root {
+  --ar-accent-rgb: 56, 189, 248;
+  --ar-accent: rgb(var(--ar-accent-rgb));
+  --ar-panel-title: #67e8f9;
+  --ar-panel-text: #cbd5e1;
+  --ar-space: #020617;
+  --ar-glass: linear-gradient(
+    135deg,
+    rgba(15, 35, 55, 0.25),
+    rgba(2, 6, 23, 0.15)
+  );
+  --ar-glass-blur: 2px;
+  --ar-panel-width: clamp(200px, 20vw, 320px);
+}
+
+#weather-panel,
+#observation-scene {
+  background-color: var(--ar-space);
+  background-image:
+    linear-gradient(rgba(2, 6, 23, 0.25), rgba(2, 6, 23, 0.25)),
+    url("https://cdn.jsdelivr.net/npm/three-globe/example/img/night-sky.png");
+  background-size: cover;
+  background-position: center;
+}
+
+/* 02 — Planetary scene and lunar foreground */
 #observation-scene {
   position: relative;
   width: 100%;
   height: 100svh;
   min-height: 480px;
   overflow: hidden;
-  background: #000;
 }
 
-/* Interactive Earth canvas */
+#planetary-stage {
+  display: contents;
+}
+
 #globe {
   position: absolute;
   inset: 0;
@@ -18,24 +46,21 @@
   height: 100%;
 }
 
-/* Realistic lunar foreground */
 #lunar-surface {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
   height: 23%;
-
   background-image: url("./assets/lunar-surface.png");
   background-size: 100% 100%;
   background-position: center bottom;
   background-repeat: no-repeat;
-
   pointer-events: none;
   transition: opacity 0.8s ease;
 }
 
-/* Floating application header */
+/* 03 — Header and city search */
 #app-header {
   position: absolute;
   top: 24px;
@@ -43,11 +68,27 @@
   width: 100%;
   padding: 0 16px;
   pointer-events: none;
-
   text-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
+  z-index: 25;
 }
 
-/* Floating navigation panel */
+#city-search {
+  position: relative;
+  pointer-events: auto;
+}
+
+#search-results {
+  background: #070e1c;
+  border: 1px solid rgba(var(--ar-accent-rgb), 0.45);
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+}
+
+#search-status {
+  text-align: left;
+}
+
+/* 04 — Navigation controls */
 #observation-controls {
   position: absolute;
   bottom: 24px;
@@ -57,18 +98,14 @@
   pointer-events: none;
 }
 
-/* Glass-style navigation buttons */
 .control-btn {
   padding: 10px 18px;
-  border: 1px solid #38bdf8;
+  border: 1px solid var(--ar-accent);
   border-radius: 10px;
-
   color: #e0f2fe;
   background: rgba(5, 15, 30, 0.85);
   backdrop-filter: blur(8px);
-
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.15);
-
+  box-shadow: 0 0 12px rgba(var(--ar-accent-rgb), 0.15);
   cursor: pointer;
   pointer-events: auto;
   transition: 0.25s ease;
@@ -76,10 +113,9 @@
 
 .control-btn:hover {
   background: rgba(14, 116, 144, 0.8);
-  box-shadow: 0 0 18px rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 18px rgba(var(--ar-accent-rgb), 0.5);
 }
 
-/* Amber reset button */
 .reset-btn {
   border-color: #ffb347;
   color: #ffd28c;
@@ -90,14 +126,230 @@
   box-shadow: 0 0 18px rgba(255, 179, 71, 0.5);
 }
 
-/* Location information */
+.mode-btn {
+  border-color: #a78bfa;
+  color: #ddd6fe;
+}
+
+.mode-btn:hover,
+.mode-btn[aria-pressed="true"] {
+  background: rgba(109, 40, 217, 0.75);
+  box-shadow: 0 0 18px rgba(167, 139, 250, 0.5);
+}
+
+.mode-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 #coordinates {
   text-shadow:
     0 2px 6px black,
     0 0 10px black;
 }
 
-/* Mobile adaptation */
+/* 05 — Cinematic introduction and interface states */
+#observation-scene[data-stage="intro"] #city-search,
+#observation-scene[data-stage="intro"] #observation-controls,
+#observation-scene[data-stage="intro"] .glass-panel {
+  display: none;
+}
+
+#start-btn {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  padding: 12px 30px;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  background: rgba(8, 25, 40, 0.45);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(var(--ar-accent-rgb), 0.6);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+#start-btn:hover {
+  background: rgba(14, 116, 144, 0.35);
+  box-shadow: 0 0 25px rgba(var(--ar-accent-rgb), 0.3);
+}
+
+#observation-scene[data-stage="explore"] #start-btn {
+  display: none;
+}
+
+/* 06 — Glass panels and guidance */
+.glass-panel {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--ar-panel-width);
+  max-height: 65%;
+  overflow-y: auto;
+  z-index: 20;
+  padding: 22px;
+  color: #e2e8f0;
+  background: var(--ar-glass);
+  backdrop-filter: blur(var(--ar-glass-blur));
+  border: 1px solid rgba(var(--ar-accent-rgb), 0.3);
+  border-radius: 16px;
+  box-shadow:
+    0 0 25px rgba(var(--ar-accent-rgb), 0.06),
+    inset 0 0 15px rgba(var(--ar-accent-rgb), 0.03);
+}
+
+#left-panel {
+  left: 3%;
+}
+
+#right-panel {
+  right: 3%;
+}
+
+/* Consistent scrollbars on panels and search results. */
+.glass-panel,
+#search-results {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--ar-accent-rgb), 0.35) transparent;
+}
+
+.panel-title {
+  color: var(--ar-panel-title);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(var(--ar-accent-rgb), 0.2);
+}
+
+.panel-description {
+  color: var(--ar-panel-text);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.guidance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-size: 0.9rem;
+}
+
+.guidance-item {
+  margin-bottom: 20px;
+}
+
+.guidance-item:last-child {
+  margin-bottom: 0;
+}
+
+.guidance-item h3 {
+  color: #7dd3fc;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.guidance-item p {
+  color: var(--ar-panel-text);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+/* 07 — Weather summaries and detailed dashboard */
+#left-weather .panel-title,
+#right-weather .panel-title {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+}
+
+#forecast-summary > p:last-child {
+  margin-top: 10px;
+}
+
+#weather-panel .bg-slate-900 {
+  background: var(--ar-glass);
+  backdrop-filter: blur(var(--ar-glass-blur));
+  border: 1px solid rgba(var(--ar-accent-rgb), 0.25);
+  box-shadow: 0 0 15px rgba(var(--ar-accent-rgb), 0.05);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+#weather-panel .bg-slate-900:hover {
+  border-color: rgba(var(--ar-accent-rgb), 0.6);
+  box-shadow: 0 0 20px rgba(var(--ar-accent-rgb), 0.12);
+}
+
+/* 08 — Desktop layout */
+@media (min-width: 1024px) and (min-height: 650px) {
+  #city-search {
+    position: absolute;
+    top: 100%;
+    left: 3%;
+    width: var(--ar-panel-width);
+    max-width: none;
+    margin: 16px 0 0;
+  }
+
+  #search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 30;
+  }
+
+  .glass-panel {
+    top: 190px;
+    transform: none;
+    max-height: calc(100% - 220px);
+  }
+}
+
+/* 09 — Stacked fallback for narrow or short viewports */
+@media (max-width: 1023px), (max-height: 649px) {
+  #observation-scene {
+    height: auto;
+    min-height: 100svh;
+    overflow: visible;
+  }
+
+  #planetary-stage {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100svh;
+    min-height: 480px;
+    overflow: hidden;
+  }
+
+  #observation-scene[data-stage="explore"] .glass-panel {
+    display: block;
+    position: relative;
+    top: auto;
+    transform: none;
+    width: calc(100% - 32px);
+    max-width: 600px;
+    max-height: none;
+    margin: 16px auto;
+    padding: 20px;
+    overflow: visible;
+  }
+
+  #left-panel {
+    left: auto;
+  }
+
+  #right-panel {
+    right: auto;
+  }
+}
+
 @media (max-width: 640px) {
   #lunar-surface {
     background-size: cover;
@@ -118,12 +370,93 @@
   }
 }
 
-/* Adapt the scene to short landscape screens */
-@media (orientation: landscape) and (max-height: 500px) {
-  #observation-scene {
-    min-height: 0;
+/* 10 — Tall mobile portrait: integrated weather panels */
+@media (orientation: portrait) and (min-width: 390px) and (max-width: 1023px) and (min-height: 850px) {
+  #observation-scene[data-stage="explore"]
+    #left-panel:has(#left-weather:not(.hidden)),
+  #observation-scene[data-stage="explore"]
+    #right-panel:has(#right-weather:not(.hidden)) {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 10px 12px;
+    transform: none;
   }
 
+  #left-panel:has(#left-weather:not(.hidden)) {
+    top: 150px;
+    bottom: auto;
+  }
+
+  #right-panel:has(#right-weather:not(.hidden)) {
+    top: auto;
+    bottom: 210px;
+  }
+
+  #left-weather .panel-title,
+  #right-weather .panel-title {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+  }
+
+  #current-weather-summary > p {
+    margin-bottom: 4px;
+    font-size: 0.75rem;
+  }
+
+  #current-weather-summary > div {
+    margin-bottom: 4px;
+  }
+
+  /* Additional measurements remain available in the detailed dashboard. */
+  #current-weather-summary > div:nth-child(n + 4) {
+    display: none;
+  }
+
+  #forecast-summary {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  #forecast-summary > div {
+    flex-direction: column;
+    text-align: center;
+    gap: 2px;
+    padding: 4px 0;
+    border-bottom: none;
+  }
+
+  #forecast-summary > div > span {
+    font-size: 1.4rem;
+  }
+
+  #forecast-summary > div p {
+    font-size: 0.7rem;
+  }
+
+  /* Keep the five-column forecast readable on narrow screens. */
+  #forecast-summary > div > div:nth-child(2) > p:nth-child(2) {
+    display: none;
+  }
+
+  #forecast-summary > div > div:last-child {
+    text-align: center;
+  }
+
+  #forecast-summary > p:last-child {
+    grid-column: 1 / -1;
+    font-size: 0.6rem;
+    margin-top: 2px;
+  }
+}
+
+/* 11 — Landscape: short viewport foundation */
+@media (orientation: landscape) and (max-height: 500px) {
   #app-header {
     top: 8px;
   }
@@ -150,27 +483,280 @@
     font-size: 12px;
     margin-top: 6px;
   }
+
+  #planetary-stage {
+    min-height: 0;
+  }
 }
 
-/* Observation mode button */
-.mode-btn {
-  border-color: #a78bfa;
-  color: #ddd6fe;
+/* 12 — Landscape: integrated side panels and compact weather summaries */
+@media (orientation: landscape) and (min-width: 650px) and (max-width: 1023px) and (min-height: 260px) and (max-height: 649px) {
+  #observation-scene[data-stage="explore"] .glass-panel {
+    position: absolute;
+    top: 100px;
+    bottom: auto;
+    width: 26%;
+    max-width: none;
+    max-height: calc(100% - 112px);
+    margin: 0;
+    padding: 10px;
+    transform: none;
+    overflow-y: auto;
+  }
+
+  #observation-scene[data-stage="explore"] #left-panel {
+    left: 12px;
+    right: auto;
+  }
+
+  #observation-scene[data-stage="explore"] #right-panel {
+    right: 12px;
+    left: auto;
+  }
+
+  #city-search {
+    position: absolute;
+    top: 100%;
+    left: 12px;
+    width: 26%;
+    margin: 4px 0 0;
+  }
+
+  #search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 30;
+  }
+
+  #city-search input,
+  #city-search button {
+    font-size: 0.75rem;
+    padding: 6px 8px;
+  }
+
+  .glass-panel .panel-title,
+  #left-weather .panel-title,
+  #right-weather .panel-title {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    padding-bottom: 5px;
+  }
+
+  #observation-controls {
+    left: 50%;
+    right: auto;
+    width: 44%;
+    transform: translateX(-50%);
+  }
+
+  #current-weather-summary > p {
+    font-size: 0.7rem;
+    margin-bottom: 6px;
+  }
+
+  #current-weather-summary .text-4xl {
+    font-size: 1.6rem;
+  }
+
+  #current-weather-summary .text-3xl {
+    font-size: 1.4rem;
+  }
+
+  #current-weather-summary > div {
+    font-size: 0.7rem;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    margin-bottom: 2px;
+  }
+
+  #forecast-summary > div {
+    gap: 6px;
+    padding: 2px 0;
+  }
+
+  #forecast-summary > div > span {
+    font-size: 1.2rem;
+  }
+
+  #forecast-summary p {
+    font-size: 0.65rem;
+    line-height: 1.3;
+  }
+
+  #forecast-summary > p:last-child {
+    margin-top: 3px;
+    font-size: 0.6rem;
+  }
 }
 
-.mode-btn:hover,
-.mode-btn[aria-pressed="true"] {
-  background: rgba(109, 40, 217, 0.75);
-  box-shadow: 0 0 18px rgba(167, 139, 250, 0.5);
+/* 13 — Compact smartphone landscape interface */
+@media (orientation: landscape) and (min-width: 650px) and (max-width: 1023px) and (min-height: 260px) and (max-height: 449px) {
+  /* Cinematic introduction */
+  #start-btn {
+    bottom: 4%;
+    font-size: 0.75rem;
+    padding: 6px 16px;
+    min-height: 36px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Application header */
+  #app-header h1 {
+    font-size: 1.5rem;
+  }
+
+  #app-header > p {
+    font-size: 0.7rem;
+    margin-top: 2px;
+  }
+
+  /* Search results constrained to the visible screen */
+  #search-results {
+    max-height: min(12rem, calc(100svh - 140px));
+    overflow-y: auto;
+  }
+
+  #search-status {
+    font-size: 0.7rem;
+    margin-top: 2px;
+  }
+
+  /* Compact glass panels */
+  #observation-scene[data-stage="explore"] .glass-panel {
+    top: 88px;
+    max-height: calc(100% - 94px);
+    padding: 6px;
+  }
+
+  .glass-panel .panel-title,
+  #left-weather .panel-title,
+  #right-weather .panel-title {
+    font-size: 0.75rem;
+    margin-bottom: 4px;
+    padding-bottom: 4px;
+  }
+
+  /* Exploration guidance */
+  .panel-description {
+    font-size: 0.7rem;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+
+  .guidance-list {
+    font-size: 0.7rem;
+    gap: 6px;
+  }
+
+  .guidance-item {
+    margin-bottom: 8px;
+  }
+
+  .guidance-item h3 {
+    font-size: 0.75rem;
+    margin-bottom: 3px;
+  }
+
+  .guidance-item p {
+    font-size: 0.7rem;
+    line-height: 1.4;
+  }
+
+  /* Compact current weather measurements */
+  #current-weather-summary > p {
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+
+  #current-weather-summary > div {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    margin-bottom: 2px;
+    line-height: 1.2;
+  }
+
+  #current-weather-summary .text-4xl {
+    font-size: 1.4rem;
+    line-height: 1.1;
+  }
+
+  #current-weather-summary .text-3xl {
+    font-size: 1.3rem;
+    line-height: 1.1;
+  }
+
+  /* Compact five-day forecast */
+  #forecast-summary > div {
+    gap: 3px;
+    padding: 1px 0;
+  }
+
+  #forecast-summary > div > span {
+    font-size: 1rem;
+  }
+
+  #forecast-summary p {
+    font-size: 0.65rem;
+    line-height: 1.2;
+  }
+
+  /* Place date and precipitation on the same row */
+  #forecast-summary > div > div:nth-child(2) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px;
+  }
+
+  #forecast-summary > div > div:nth-child(2) > p:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  #forecast-summary > div > div:nth-child(2) > p:nth-child(3) {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+  }
+
+  #forecast-summary > p:last-child {
+    margin-top: 3px;
+    font-size: 0.6rem;
+  }
+
+  /* Planetary navigation */
+  #observation-controls {
+    bottom: 6px;
+    padding: 0;
+  }
+
+  #observation-controls nav {
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1.35fr)
+      repeat(3, minmax(0, 0.8fr))
+      minmax(0, 1.45fr);
+    gap: 4px;
+  }
+
+  #observation-controls .control-btn {
+    font-size: 0.68rem;
+    padding: 3px 4px;
+    min-height: 36px;
+    white-space: normal;
+    line-height: 1.1;
+  }
+
+  #coordinates {
+    font-size: 0.65rem;
+    margin-top: 4px;
+  }
 }
 
-.mode-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Enable interaction with the city search interface */
-#city-search {
-  position: relative;
-  pointer-events: auto;
+/* 14 — Touchscreen interactions */
+@media (pointer: coarse) {
+  #globe canvas {
+    touch-action: pan-y !important;
+  }
 }
