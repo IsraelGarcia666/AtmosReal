@@ -7,8 +7,8 @@
     <title>AtmosReal - Planetary Weather Intelligence</title>
     <link rel="icon" type="image/svg+xml" href="/AtmosReal/favicon.svg" />
 
-    <script type="module" crossorigin src="/AtmosReal/assets/index-CWqOSYjj.js"></script>
-    <link rel="stylesheet" crossorigin href="/AtmosReal/assets/index-BLx0IgHI.css">
+    <script type="module" crossorigin src="/AtmosReal/assets/index-BHPoxArk.js"></script>
+    <link rel="stylesheet" crossorigin href="/AtmosReal/assets/index-CI4L2uEd.css">
   </head>
 
   <body class="bg-slate-950 text-white">
@@ -274,6 +274,17 @@
         >
           Data provider: Open-Meteo
         </p>
+
+        <!-- Interactive five-day temperature forecast chart -->
+        <div class="bg-slate-900 rounded-xl p-4 mt-6">
+          <h3 class="text-xl font-semibold text-sky-300 mb-4">
+            Temperature Trends
+          </h3>
+
+          <div class="relative h-64 md:h-80">
+            <canvas id="temperature-chart"></canvas>
+          </div>
+        </div>
 
         <a href="#observation-scene" class="inline-block mt-4 text-cyan-400">
           ↑ Return to Earth
