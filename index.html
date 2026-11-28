@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>AtmosReal - Planetary Weather Intelligence</title>
+
+    <script type="module" crossorigin src="/AtmosReal/assets/index-DQnSwPq4.js"></script>
+    <link rel="stylesheet" crossorigin href="/AtmosReal/assets/index-32Oa8CGh.css">
+  </head>
+
+  <body class="bg-slate-950 text-white">
+    <!-- Full-screen lunar observation scene -->
+    <main id="observation-scene" data-stage="intro">
+      <!-- Interactive planetary viewport -->
+      <div id="planetary-stage">
+        <!-- Interactive 3D Earth -->
+        <div id="globe"></div>
+
+        <!-- Decorative lunar foreground -->
+        <div id="lunar-surface" aria-hidden="true"></div>
+
+        <!-- Application header -->
+        <header id="app-header" class="text-center">
+          <h1 class="text-4xl md:text-5xl font-bold tracking-widest">
+            Atmos<span class="text-cyan-400">Real</span>
+          </h1>
+
+          <p class="mt-2 text-slate-300">Planetary Weather Intelligence</p>
+
+          <!-- Worldwide city search -->
+          <div id="city-search" class="max-w-md mx-auto mt-4">
+            <form id="search-form" class="flex gap-2">
+              <input
+                id="city-input"
+                type="search"
+                placeholder="Search a city..."
+                aria-label="City name"
+                autocomplete="off"
+                required
+                minlength="2"
+                class="w-full min-w-0 px-4 py-2 rounded-lg bg-slate-950/85 border border-sky-600 text-white outline-none focus:border-cyan-400"
+              />
+
+              <button type="submit" class="control-btn">Search</button>
+            </form>
+
+            <!-- Search feedback -->
+            <p
+              id="search-status"
+              class="text-sm text-slate-300 mt-2"
+              aria-live="polite"
+            ></p>
+
+            <!-- Geographical search results -->
+            <div
+              id="search-results"
+              class="hidden mt-2 rounded-lg border border-sky-700 bg-slate-950/95 text-left max-h-48 overflow-y-auto"
+            ></div>
+          </div>
+        </header>
+
+        <!-- Cinematic introduction button -->
+        <button id="start-btn" type="button" class="control-btn">
+          Start here →
+        </button>
+
+        <!-- Observation station controls -->
+        <div id="observation-controls">
+          <nav class="flex flex-wrap justify-center gap-3">
+            <button id="rotate-btn" type="button" class="control-btn">
+              Pause rotation
+            </button>
+
+            <button id="zoom-in-btn" type="button" class="control-btn">
+              + Zoom
+            </button>
+
+            <button id="zoom-out-btn" type="button" class="control-btn">
+              − Zoom
+            </button>
+
+            <button id="reset-btn" type="button" class="control-btn reset-btn">
+              Reset
+            </button>
+            <!-- Switch between planetary observation modes -->
+            <button
+              id="mode-btn"
+              type="button"
+              class="control-btn mode-btn"
+              aria-pressed="false"
+              disabled
+            >
+              Exploration mode
+            </button>
+          </nav>
+
+          <p id="coordinates" class="text-center mt-4 text-emerald-400">
+            Select a location to explore Earth
+          </p>
+
+          <!-- Navigate to the weather dashboard -->
+          <div class="text-center mt-2">
+            <button
+              id="view-weather-btn"
+              type="button"
+              class="control-btn hidden border-emerald-400 text-emerald-400"
+            >
+              View Weather ↓
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Left glass panel -->
+      <aside id="left-panel" class="glass-panel">
+        <!-- Exploration guidance -->
+        <div id="left-guidance">
+          <h2 class="panel-title">Explore Earth</h2>
+
+          <p class="panel-description">
+            Discover weather conditions anywhere on our planet.
+          </p>
+
+          <ul class="guidance-list">
+            <li>🌍 Drag Earth to rotate</li>
+            <li>🔍 Zoom in or out</li>
+            <li>📍 Select any geographical location</li>
+            <li>🔎 Search for a city</li>
+          </ul>
+        </div>
+
+        <!-- Current weather information -->
+        <div id="left-weather" class="hidden">
+          <h2 class="panel-title">Current Weather</h2>
+
+          <div id="current-weather-summary"></div>
+        </div>
+      </aside>
+
+      <!-- Right glass panel -->
+      <aside id="right-panel" class="glass-panel">
+        <!-- Observation guidance -->
+        <div id="right-guidance">
+          <h2 class="panel-title">Observation Modes</h2>
+
+          <div class="guidance-item">
+            <h3>☀️ Real-time mode</h3>
+
+            <p>
+              Observe Earth's current day and night illumination with a static
+              cloud layer.
+            </p>
+          </div>
+
+          <div class="guidance-item">
+            <h3>🌍 Exploration mode</h3>
+
+            <p>Explore a fully illuminated planet without the cloud layer.</p>
+          </div>
+        </div>
+
+        <!-- Daily weather forecast -->
+        <div id="right-weather" class="hidden">
+          <h2 class="panel-title">Five-Day Forecast</h2>
+
+          <div id="forecast-summary"></div>
+        </div>
+      </aside>
+    </main>
+    <!-- Weather information dashboard -->
+    <section
+      id="weather-panel"
+      class="hidden min-h-[100svh] bg-slate-950 text-white p-6"
+    >
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold text-cyan-400">Weather Intelligence</h2>
+
+        <p id="weather-location" class="mt-2 text-slate-400">
+          Selected location
+        </p>
+
+        <!-- Current temperature -->
+        <p id="weather-temperature" class="text-5xl font-bold mt-6">-- °C</p>
+        <!-- Current weather condition -->
+        <p id="weather-condition" class="text-xl text-sky-300 mt-2">--</p>
+
+        <!-- Local daylight status -->
+        <p id="weather-daylight" class="text-sm text-slate-400 mt-1">--</p>
+
+        <!-- Weather information cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-sky-400">Humidity</p>
+            <p id="weather-humidity">--</p>
+          </div>
+
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-amber-400">Elevation</p>
+            <p id="weather-elevation">--</p>
+          </div>
+
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-violet-400">Local data time</p>
+            <p id="weather-time">--</p>
+          </div>
+
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-emerald-400">Time zone</p>
+            <p id="weather-timezone">--</p>
+          </div>
+
+          <!-- Feels-like temperature -->
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-orange-400">Feels like</p>
+            <p id="weather-feels-like">--</p>
+          </div>
+
+          <!-- Wind speed -->
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-teal-400">Wind speed</p>
+            <p id="weather-wind-speed">--</p>
+          </div>
+
+          <!-- Wind direction -->
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-indigo-400">Wind direction</p>
+            <p id="weather-wind-direction">--</p>
+          </div>
+
+          <!-- Cloud coverage -->
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-slate-300">Cloud coverage</p>
+            <p id="weather-cloud-cover">--</p>
+          </div>
+
+          <!-- Atmospheric pressure -->
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-pink-400">Surface pressure</p>
+            <p id="weather-pressure">--</p>
+          </div>
+
+          <!-- Sunrise -->
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-yellow-400">Sunrise</p>
+            <p id="weather-sunrise">--</p>
+          </div>
+
+          <!-- Sunset -->
+          <div class="bg-slate-900 rounded-xl p-4">
+            <p class="text-orange-400">Sunset</p>
+            <p id="weather-sunset">--</p>
+          </div>
+        </div>
+
+        <!-- Five-day weather forecast -->
+        <section id="forecast-section" class="mt-8">
+          <h3 class="text-xl font-bold text-cyan-400 mb-4">
+            Five-Day Forecast
+          </h3>
+
+          <div
+            id="forecast-cards"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"
+          ></div>
+        </section>
+
+        <p
+          id="weather-status"
+          class="mt-6 text-sm text-slate-400"
+          aria-live="polite"
+        >
+          Data provider: Open-Meteo
+        </p>
+
+        <a href="#observation-scene" class="inline-block mt-4 text-cyan-400">
+          ↑ Return to Earth
+        </a>
+      </div>
+    </section>
+  </body>
+</html>
