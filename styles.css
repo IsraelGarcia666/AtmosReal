@@ -57,7 +57,7 @@
   background-position: center bottom;
   background-repeat: no-repeat;
   pointer-events: none;
-  transition: opacity 0.8s ease;
+  transition: opacity 3.4s ease-in-out;
 }
 
 /* 03 — Header and city search */

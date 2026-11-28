@@ -25,6 +25,11 @@ function getHomeAltitude() {
   return Math.max(2.5, 2.6 * aspectRatio - 1);
 }
 
+// Calculate the wider exploration camera distance.
+function getExplorationAltitude() {
+  return getHomeAltitude() + 1.0;
+}
+
 // Initialize the interactive globe.
 const earth = new Globe(container)
   .globeImageUrl(
@@ -137,7 +142,10 @@ $(window).on("resize", function () {
   earth.pointOfView({
     lat: view.lat,
     lng: view.lng,
-    altitude: getHomeAltitude(),
+    altitude:
+      $("#observation-scene").attr("data-stage") === "intro"
+        ? getHomeAltitude()
+        : getExplorationAltitude(),
   });
 });
 
@@ -177,8 +185,19 @@ $("#zoom-out-btn").on("click", function () {
   );
 });
 
-// Reset the original planetary viewpoint.
+// Fade out the glass panels before returning to the Moon.
 $("#reset-btn").on("click", function () {
+  $(this).prop("disabled", true);
+
+  $("#left-panel, #right-panel")
+    .stop(true, false)
+    .fadeTo(1200, 0)
+    .promise()
+    .done(resetObservation);
+});
+
+// Reset the original planetary viewpoint.
+function resetObservation() {
   // Cancel pending city search requests.
   if (activeSearchRequest) {
     activeSearchRequest.abort();
@@ -214,14 +233,14 @@ $("#reset-btn").on("click", function () {
   earth.pointsData([]);
   earth.ringsData([]);
 
-  // Restore the original camera position.
+  // Cinematically return to the lunar observation viewpoint.
   earth.pointOfView(
     {
       lat: 20,
       lng: 0,
       altitude: getHomeAltitude(),
     },
-    1000,
+    4000,
   );
 
   // Resume automatic planetary rotation.
@@ -235,12 +254,29 @@ $("#reset-btn").on("click", function () {
   // Restore the cinematic introduction state.
   $("#observation-scene").attr("data-stage", "intro");
 
-  // Restore the lunar observation view.
-  $("#lunar-surface").css("opacity", 1);
+  // Synchronize the Start here button with the lunar fade-in.
+  $("#start-btn")
+    .stop(true, false)
+    .css("opacity", 0)
+    .prop("disabled", true)
+    .delay(1200)
+    .fadeTo(3400, 1, function () {
+      $(this).prop("disabled", false);
+    });
+
+  // Gradually restore the lunar landscape after a short delay.
+  $("#lunar-surface").css({
+    transitionDelay: "1.2s",
+    opacity: 1,
+  });
 
   // Restore the default instructions.
   $("#coordinates").text("Select a location to explore Earth");
-});
+
+  // Restore panel opacity and reset button availability.
+  $("#left-panel, #right-panel").css("opacity", "");
+  $("#reset-btn").prop("disabled", false);
+}
 
 // Enable illumination and configure observation modes.
 enableIllumination(earth)
@@ -363,7 +399,7 @@ $("#search-form").on("submit", function (event) {
             {
               lat: location.latitude,
               lng: location.longitude,
-              altitude: getHomeAltitude(),
+              altitude: getExplorationAltitude(),
             },
             1800,
           );
@@ -389,13 +425,38 @@ $("#search-form").on("submit", function (event) {
 
 // Transition from cinematic introduction to exploration.
 $("#start-btn").on("click", function () {
-  // Activate exploration mode in the interface.
-  $("#observation-scene").attr("data-stage", "explore");
+  // Gradually fade out the button together with the lunar landscape.
+  $(this).prop("disabled", true).fadeTo(3400, 0);
 
-  // Gradually hide the lunar landscape.
-  $("#lunar-surface").css("opacity", 0);
+  // Preserve the current planetary orientation.
+  const view = earth.pointOfView();
 
-  // Reveal the exploration interface with a fade effect.
-  $("#city-search").hide().fadeIn(800);
-  $("#observation-controls").hide().fadeIn(800);
+  // Slowly zoom out from Earth.
+  earth.pointOfView(
+    {
+      lat: view.lat,
+      lng: view.lng,
+      altitude: getExplorationAltitude(),
+    },
+    4000,
+  );
+
+  // Gradually hide the lunar landscape without delay.
+  $("#lunar-surface").css({
+    transitionDelay: "0s",
+    opacity: 0,
+  });
+
+  // Delay the exploration interface for a cinematic effect.
+  setTimeout(function () {
+    $("#observation-scene").attr("data-stage", "explore");
+
+    $("#city-search").hide().fadeIn(1200);
+    $("#observation-controls").hide().fadeIn(1200);
+
+    // Gradually reveal both glass panels.
+    $("#left-panel, #right-panel").css("opacity", 0).fadeTo(1200, 1);
+
+    $("#start-btn").prop("disabled", false);
+  }, 3500);
 });

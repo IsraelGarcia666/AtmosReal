@@ -60,6 +60,20 @@ The final visual design may evolve during development.
 
 ## Development History
 
+### v0.4.1 – Cinematic Transition Refinements (2026-11-28)
+
+- Introduced smooth four-second planetary camera transitions.
+- Synchronized the lunar landscape and Start here button fades.
+- Implemented delayed appearance of the exploration interface.
+- Added gradual fade-in and fade-out effects for the glass panels.
+- Refined camera distances for introduction and exploration states.
+- Preserved responsive camera positioning across device orientations.
+- Corrected the favicon directory and verified its functionality.
+
+The slower cinematic transitions are an intentional UX design
+decision, allowing visitors to appreciate Earth's beauty and
+rotation before entering the interactive weather experience.
+
 ### v0.4.0 – Cinematic Experience (2026-11-28)
 
 - Introduced a cinematic lunar observation scene with an
