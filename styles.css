@@ -760,3 +760,63 @@
     touch-action: pan-y !important;
   }
 }
+
+/* 15 — Dynamic weather atmosphere */
+
+/* Weather-dependent accent colors */
+[data-weather="sunny"] {
+  --weather-accent: #fbbf24;
+}
+
+[data-weather="cloudy"] {
+  --weather-accent: #94a3b8;
+}
+
+[data-weather="rain"] {
+  --weather-accent: #60a5fa;
+}
+
+[data-weather="snow"] {
+  --weather-accent: #a5f3fc;
+}
+
+[data-weather="thunderstorm"] {
+  --weather-accent: #c084fc;
+}
+
+[data-weather="fog"] {
+  --weather-accent: #cbd5e1;
+}
+
+[data-weather="night"] {
+  --weather-accent: #818cf8;
+}
+
+[data-weather="neutral"] {
+  --weather-accent: #38bdf8;
+}
+
+/* Apply atmospheric colors to weather panel titles */
+#left-weather .panel-title,
+#right-weather .panel-title,
+#weather-panel h2 {
+  color: var(--weather-accent, #38bdf8);
+  border-color: var(--weather-accent, #38bdf8);
+  text-shadow: 0 0 12px
+    color-mix(in srgb, var(--weather-accent) 35%, transparent);
+  transition:
+    color 1.5s ease-in-out,
+    border-color 1.5s ease-in-out,
+    text-shadow 1.5s ease-in-out;
+}
+
+/* Atmospheric glow behind the detailed weather dashboard */
+#weather-panel[data-weather] {
+  background-image:
+    radial-gradient(
+      ellipse at top,
+      color-mix(in srgb, var(--weather-accent) 18%, transparent),
+      transparent 65%
+    ),
+    url("https://cdn.jsdelivr.net/npm/three-globe/example/img/night-sky.png");
+}

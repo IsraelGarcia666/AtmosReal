@@ -1,4 +1,5 @@
 import $ from "jquery";
+import { displayTemperatureChart } from "./forecast-chart.js";
 
 // Open-Meteo weather forecast API endpoint.
 const WEATHER_API = "https://api.open-meteo.com/v1/forecast";
@@ -39,6 +40,35 @@ export function getWeatherCondition(code) {
   };
 
   return conditions[code] ?? "Unknown condition";
+}
+
+// Classify weather conditions into visual atmosphere themes.
+function getWeatherAtmosphere(code, isDay) {
+  if ([95, 96, 97, 99].includes(code)) {
+    return "thunderstorm";
+  }
+
+  if ([71, 73, 75, 77, 85, 86].includes(code)) {
+    return "snow";
+  }
+
+  if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code)) {
+    return "rain";
+  }
+
+  if ([45, 48].includes(code)) {
+    return "fog";
+  }
+
+  if ([2, 3].includes(code)) {
+    return "cloudy";
+  }
+
+  if ([0, 1].includes(code)) {
+    return isDay === 1 ? "sunny" : "night";
+  }
+
+  return "neutral";
 }
 
 // Retrieve weather data for a geographical location.
@@ -85,6 +115,16 @@ export function fetchWeather(lat, lng) {
 
 // Display current weather information in the dashboard.
 export function displayWeather(data, lat, lng, locationName = null) {
+  // Apply the current weather atmosphere to the weather interface.
+  const atmosphere = getWeatherAtmosphere(
+    data.current.weather_code,
+    data.current.is_day,
+  );
+
+  $("#weather-panel, #left-weather, #right-weather").attr(
+    "data-weather",
+    atmosphere,
+  );
   const current = data.current;
   const units = data.current_units;
 
@@ -175,6 +215,9 @@ export function displayWeather(data, lat, lng, locationName = null) {
 
   // Reveal the detailed weather dashboard.
   $("#weather-panel").removeClass("hidden");
+
+  // Render the interactive five-day temperature chart.
+  displayTemperatureChart(data.daily);
 }
 
 // Generate daily weather forecast cards.
